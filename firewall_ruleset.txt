@@ -1,0 +1,33 @@
+$ sudo iptables -P INPUT DROP
+$ sudo iptables -P OUTPUT DROP
+$ sudo iptables -P FORWARD DROP
+
+# APACHE
+$ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+$ sudo iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+$ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+$ sudo iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+
+# PROFTPD 
+$ sudo iptables -A INPUT  -p tcp -m tcp --dport 21 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+$ sudo iptables -A OUTPUT -p tcp -m tcp --sport 21 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+
+$ sudo iptables -A INPUT  -p tcp -m tcp --dport 20 -m conntrack --ctstate ESTABLISHED -j ACCEPT 
+$ sudo iptables -A OUTPUT -p tcp -m tcp --sport 20 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+
+$ sudo iptables -A INPUT -p tcp -m tcp --sport 1024: --dport 1024: -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+$ sudo iptables -A OUTPUT -p tcp -m tcp --sport 1024: --dport 1024: -m conntrack --ctstate ESTABLISHED -j ACCEPT
+
+
+# BIND 9
+$ sudo iptables -A INPUT -p udp --dport 53 -j DROP
+$ sudo iptables -A OUTPUT -p udp --dport 53 -j DROP
+
+# PREVENT PING FLOODING
+$ sudo iptables -t filter -A INPUT -p icmp --icmp-type echo-request -m limit --limit 3/minute -j ACCEPT
+$ sudo iptables -t filter -A INPUT -p icmp -j DROP
+$ sudo iptables -t filter -A OUTPUT -p icmp --icmp-type echo-reply -j ACCEPT
+
+$ sudo iptables -P INPUT DROP
+$ sudo iptables -P OUTPUT DROP
+$ sudo iptables -P FORWARD DROP
